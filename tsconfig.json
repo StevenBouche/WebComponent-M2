@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "target": "es2019",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "importHelpers": true,
+        "jsx": "react",
+        "module": "esnext",
+        "moduleResolution": "node"
+    },
+    "include": [
+        "src"
+, "assets/imgs/rmsProcessor.js"    ]
+}

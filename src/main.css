@@ -1,0 +1,25 @@
+canvas {
+    border: 1px solid black;
+}
+
+#main-container {
+    --main-color: rgb(243, 173, 22);
+    --secondary-color: black;
+    --background-color: black;
+    display: flex;
+    flex-direction: row;
+    height: 600px;
+    background-color: var(--background-color);
+    color: var(--main-color);
+    font-family: Arial, Helvetica, sans-serif;
+    letter-spacing: -0.5px;
+}
+
+#canvas-audio {
+    display: flex;
+    flex-direction: column;
+}
+
+#canvas-audio canvas {
+    border: 1px solid var(--main-color);
+}
