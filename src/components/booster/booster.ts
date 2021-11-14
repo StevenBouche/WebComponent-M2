@@ -5,7 +5,6 @@ import {
     css,
     customElement,
     FASTElement,
-    attr,
 } from "@microsoft/fast-element";
 import { AudioFilter, NameFilter } from "../Amplification";
 import { Utils } from "../utils";
@@ -15,8 +14,8 @@ const styles = css`${cssFile}`;
 
 class BoosterBinding {
 
-    volumne: HTMLElement;
-    master: HTMLElement;
+    input: HTMLElement;
+    output: HTMLElement;
     drive: HTMLElement;
     bass: HTMLElement;
     middle: HTMLElement;
@@ -24,14 +23,14 @@ class BoosterBinding {
     reverb: HTMLElement;
     presence: HTMLElement;
 
+
     constructor(shadowRoot: ShadowRoot){
-        this.volumne = shadowRoot.querySelector('#volumne-booster')
-        this.master = shadowRoot.querySelector('#master-booster')
+        this.input = shadowRoot.querySelector('#input-booster')
+        this.output = shadowRoot.querySelector('#output-booster')
         this.drive = shadowRoot.querySelector("#drive-booster")
         this.bass = shadowRoot.querySelector('#bass-booster')
         this.middle = shadowRoot.querySelector('#middle-booster')
         this.treble = shadowRoot.querySelector('#treble-booster')
-        this.reverb = shadowRoot.querySelector('#reverb-booster');
         this.presence = shadowRoot.querySelector('#presence-booster');
     }   
 }
@@ -51,6 +50,8 @@ export class Booster extends FASTElement {
     private booster: BoosterBinding;
     private mapFilter: Map<NameFilter, AudioFilter> = new Map();
     private _audioContext: AudioContext;
+    inputGain: GainNode;
+    outputGain: GainNode;
 
     get filters(): Array<BiquadFilterNode> {
         return[...this.mapFilter.values()].map(element => element.filter);
@@ -68,6 +69,8 @@ export class Booster extends FASTElement {
     }
 
     buildFilters() {
+        this.inputGain = this._audioContext.createGain();
+        this.outputGain = this._audioContext.createGain();
         this.mapFilter.set(NameFilter.BASS, new AudioFilter(this._audioContext, 100, 'lowshelf', value => value * 3));
         this.mapFilter.set(NameFilter.MIDDLE, new AudioFilter(this._audioContext, 1700, 'peaking', value => value-5 * 2));
         this.mapFilter.set(NameFilter.TREBLE, new AudioFilter(this._audioContext, 6500, 'highshelf', value => value * 5));
@@ -75,10 +78,16 @@ export class Booster extends FASTElement {
     }
 
     listenerActionBooster() {
-        this.booster.bass.oninput = (event) => {
-            
+        this.booster.input.oninput = (event) => {
             const value = Utils.getValueInput(event.target);
-            console.log(value)
+            this.inputGain.gain.value = value / 10;
+        }
+        this.booster.output.oninput = (event) => {
+            const value = Utils.getValueInput(event.target);
+            this.outputGain.gain.value = value / 10;
+        }
+        this.booster.bass.oninput = (event) => {
+            const value = Utils.getValueInput(event.target);
             this.mapFilter.get(NameFilter.BASS).setGain(value);
         }
         this.booster.middle.oninput = (event) => {

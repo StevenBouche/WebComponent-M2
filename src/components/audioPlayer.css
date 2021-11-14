@@ -19,8 +19,46 @@
  */
 
 #audio-container {
-    border: 1px solid black;
-    width: 400px;
+    display: flex;
+    flex-direction: column;
+    width: 500px;
+    padding: .3em;
+}
+
+#audio-plugin-container {
+    display: flex;
+    flex-direction: row;
+}
+
+#audio-plugin-volumn-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#audio-plugin-other-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 90%;
+}
+
+#audio-slider-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+#audio-slider-container div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding-left: .3em;
+    padding-right: .3em;
+    margin-bottom: .3em;
 }
 
 #audioPlayer {
@@ -28,7 +66,7 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    padding: 5px;
+    width: 100%;
     color: var(--main-color);
 }
 
@@ -109,8 +147,8 @@ audio:not([controls]) {
  AUDIO PLAYER PROGRESS BAR
  */
 
-#audio-player-container {
-  --seek-before-width: 0%;
+.audio-slider-container {
+    --seek-before-width: 0%;
   --volume-before-width: 100%;
   --buffered-width: 0%;
   --current-width: 0%;
@@ -131,7 +169,7 @@ audio:not([controls]) {
   width: 95%;
 }
 
-#progress-slider[type="range"] {
+.slider-progress[type="range"] {
     position: relative;
     -webkit-appearance: none;
     width: 100%;
@@ -143,14 +181,14 @@ audio:not([controls]) {
     margin-left: auto;
 }
 
-#progress-slider[type="range"]::-webkit-slider-runnable-track {
+.slider-progress[type="range"]::-webkit-slider-runnable-track {
     width: 100%;
     height: 9px;
     cursor: pointer;
     background: var(--linear-gradient);
 }
 
-#progress-slider[type="range"]::before {
+.slider-progress[type="range"]::before {
     position: absolute;
     content: "";
     top: 8px;
@@ -161,7 +199,7 @@ audio:not([controls]) {
     cursor: pointer;
 }
 
-#progress-slider[type="range"]::-webkit-slider-thumb {
+.slider-progress[type="range"]::-webkit-slider-thumb {
     position: relative;
     -webkit-appearance: none;
     box-sizing: content-box;
@@ -174,27 +212,27 @@ audio:not([controls]) {
     margin: -4px 0 0 0;
 }
 
-#progress-slider[type="range"]:active::-webkit-slider-thumb {
+.slider-progress[type="range"]:active::-webkit-slider-thumb {
     transform: scale(1.2);
     background: var(--color-slider);
 }
 
-#progress-slider[type="range"]::-moz-range-track {
+.slider-progress[type="range"]::-moz-range-track {
     width: 100%;
     height: 9px;
     cursor: pointer;
     background: var(--linear-gradient);
 }
 
-#progress-slider[type="range"]::-moz-range-progress {
+.slider-progress[type="range"]::-moz-range-progress {
     background-color: var(--color-slider);
 }
 
-#progress-slider[type="range"]::-moz-focus-outer {
+.slider-progress[type="range"]::-moz-focus-outer {
     border: 0;
 }
 
-#progress-slider[type="range"]::-moz-range-thumb {
+.slider-progress[type="range"]::-moz-range-thumb {
     box-sizing: content-box;
     border: 1px solid var(--color-slider);
     height: 15px;
@@ -204,12 +242,12 @@ audio:not([controls]) {
     cursor: pointer;
 }
 
-#progress-slider[type="range"]:active::-moz-range-thumb {
+.slider-progress[type="range"]:active::-moz-range-thumb {
     transform: scale(1.2);
     background: var(--color-slider);
 }
 
-#progress-slider[type="range"]::-ms-track {
+.slider-progress[type="range"]::-ms-track {
     width: 100%;
     height: 3px;
     cursor: pointer;
@@ -218,15 +256,15 @@ audio:not([controls]) {
     color: transparent;
 }
 
-#progress-slider[type="range"]::-ms-fill-lower {
+.slider-progress[type="range"]::-ms-fill-lower {
     background-color: var(--color-slider);
 }
 
-#progress-slider[type="range"]::-ms-fill-upper {
+.slider-progress[type="range"]::-ms-fill-upper {
     background: var(--linear-gradient);
 }
 
-#progress-slider[type="range"]::-ms-thumb {
+.slider-progress[type="range"]::-ms-thumb {
     box-sizing: content-box;
     border: 1px solid var(--color-slider);
     height: 15px;
@@ -236,7 +274,7 @@ audio:not([controls]) {
     cursor: pointer;
 }
 
-#progress-slider[type="range"]:active::-ms-thumb {
+.slider-progress[type="range"]:active::-ms-thumb {
     transform: scale(1.2);
     background: var(--color-slider);
 }

@@ -24,7 +24,6 @@ export class AudioFilter{
         this.calculValue = set;
     }
     setGain(value: number){
-        console.log(this.calculValue)
         this.filter.gain.value = this.calculValue !== null ? this.calculValue(value) : value;
     }
 }

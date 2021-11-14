@@ -2,11 +2,11 @@
     font-family: Arial, Helvetica, sans-serif;
     letter-spacing: -0.5px;
     background-color: var(--background-color);
-    width: 300px;
+
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 100%;
+    height: 400px;
     overflow-y: auto;
 }
 
@@ -27,4 +27,13 @@
     width: 100%;
     background-color: var(--main-color);
     color: var(--secondary-color);
+}
+
+.playlist-container-input {
+    padding-bottom: .4em;
+}
+
+#button-add-playlist {
+    background-color: var(--secondary-color);
+    color: var(--main-color);
 }

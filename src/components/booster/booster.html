@@ -1,42 +1,29 @@
 <div id="audio-booster-container">
   <div class="ml flexDiv">
     <webaudio-knob
-      id=""
+      id="input-booster"
       src="/assets/imgs/LittlePhatty.png"
       diameter="30"
       min="0"
-      max="10"
+      max="20"
       step="0.1"
       value="0"
-      tooltip="Volume: %d"
+      tooltip="Input Gain: %d"
     ></webaudio-knob>
-    <span>Volume</span>
+    <span>Input</span>
   </div>
   <div class="ml flexDiv">
     <webaudio-knob
-      id=""
+      id="output-booster"
       src="/assets/imgs/LittlePhatty.png"
       diameter="30"
       min="0"
-      max="10"
+      max="20"
       step="0.1"
       value="0"
       tooltip="Master: %d"
     ></webaudio-knob>
-    <span>Master</span>
-  </div>
-  <div class="ml flexDiv">
-    <webaudio-knob
-      id="drive-booster"
-      src="/assets/imgs/LittlePhatty.png"
-      diameter="30"
-      min="0"
-      max="10"
-      step="0.1"
-      value="0"
-      tooltip="Drive: %d"
-    ></webaudio-knob>
-    <span>Drive</span>
+    <span>Output</span>
   </div>
   <div class="ml flexDiv">
     <webaudio-knob
@@ -76,19 +63,6 @@
       tooltip="Treble: %d"
     ></webaudio-knob>
     <span>Treble</span>
-  </div>
-  <div class="ml flexDiv">
-    <webaudio-knob
-      id="reverb-booster"
-      src="/assets/imgs/LittlePhatty.png"
-      diameter="30"
-      min="0"
-      max="10"
-      step="0.1"
-      value="0"
-      tooltip="Reverb: %d"
-    ></webaudio-knob>
-    <span>Reverb</span>
   </div>
   <div class="ml flexDiv">
     <webaudio-knob

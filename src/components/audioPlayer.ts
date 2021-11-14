@@ -1,6 +1,7 @@
 import './../libs/webaudio-controls';
 import './booster/booster';
 import './equalizer/equalizer';
+import './volumne-vis/volumnVis'
 import htmlFile from "./audioPlayer.html";
 import cssFile from './audioPlayer.css'
 import { SvgCollection } from './svg/svg.collection';
@@ -16,15 +17,30 @@ import { provideFASTDesignSystem } from '@microsoft/fast-components';
 import { AudioFilter, NameFilter } from './Amplification';
 import { Booster } from './booster/booster';
 import { Equalizer } from './equalizer/equalizer';
+import './processor/volumneProcessor'
+import { VolumnVis } from './volumne-vis/volumnVis';
+import { Utils } from './utils';
 
 provideFASTDesignSystem().withShadowRootMode("open")
 
 const template = html<AudioPlayer> `${htmlFile}`;
 const styles = css`${cssFile}`;
 
+interface StateInput {
+    current: number;
+    min: number;
+    max: number;
+    step: number;
+}
+
 class AudioBinding {
 
     audioProgressContainer: HTMLDivElement;
+    audioBalanceContainer: HTMLDivElement;
+    audioSpeedContainer: HTMLDivElement;
+    slider: HTMLInputElement;
+    sliderBalance: HTMLInputElement;
+    sliderSpeed: HTMLInputElement;
 
     duration: HTMLSpanElement;
     currentTime: HTMLSpanElement;
@@ -32,7 +48,7 @@ class AudioBinding {
     play: HTMLButtonElement;
     back: HTMLButtonElement;
     forward: HTMLButtonElement;
-    slider: HTMLInputElement;
+    
     volumn: HTMLInputElement;
 
     booster: Booster;
@@ -40,6 +56,9 @@ class AudioBinding {
 
     title: HTMLInputElement;
 
+    volumnLeft: VolumnVis;
+    volumnRight: VolumnVis;
+    
     constructor(shadowRoot: ShadowRoot){
         this.duration = shadowRoot.getElementById('duration')
         this.currentTime = shadowRoot.getElementById('currentTime')
@@ -52,6 +71,12 @@ class AudioBinding {
         this.booster = shadowRoot.querySelector("#audio-booster");
         this.equalizer = shadowRoot.querySelector("#audio-equalizer");
         this.title = shadowRoot.querySelector("#title-audio-player");
+        this.volumnLeft = shadowRoot.querySelector("#audio-volumn-left");
+        this.volumnRight = shadowRoot.querySelector("#audio-volumn-right");
+        this.sliderBalance = shadowRoot.querySelector('#balance-slider');
+        this.sliderSpeed = shadowRoot.querySelector('#speed-slider');
+        this.audioBalanceContainer = shadowRoot.querySelector('#audio-slider-balance');
+        this.audioSpeedContainer = shadowRoot.querySelector('#audio-slider-speed');
     }   
 
     updateAudioDuration(duration: number): void {
@@ -70,6 +95,35 @@ class AudioBinding {
         const returnedSeconds = seconds < 10 ? `0${seconds}` : `${seconds}`;
         return `${minutes}:${returnedSeconds}`;
     }
+
+    updateValueVolumn(stateVolumn: StateInput){
+        this.volumn.min = String(stateVolumn.min);
+        this.volumn.max = String(stateVolumn.max);
+        this.volumn.value = String(stateVolumn.current);
+        this.volumn.step = String(stateVolumn.step);
+    }
+
+    updateValueBalance(state: StateInput){
+        this.sliderBalance.min = String(state.min);
+        this.sliderBalance.max = String(state.max);
+        this.sliderBalance.value = String(state.current);
+        this.sliderBalance.step = String(state.step);
+    }
+
+    updateValueSpeed(state: StateInput){
+        this.sliderSpeed.min = String(state.min);
+        this.sliderSpeed.max = String(state.max);
+        this.sliderSpeed.value = String(state.current);
+        this.sliderSpeed.step = String(state.step);
+    }
+
+    refreshSliderBalance() {
+        this.audioBalanceContainer.style.setProperty('--current-width', `${this.sliderBalance.value}%`);
+    }
+
+    refreshSliderSpeed() {
+        this.audioSpeedContainer.style.setProperty('--current-width', `${this.sliderSpeed.value}%`);
+    }
 }
 
 @customElement({
@@ -78,59 +132,75 @@ class AudioBinding {
     styles,
 })
 export class AudioPlayer extends FASTElement {
-
+   
     private audioPlayer: HTMLAudioElement;
 
     private binding: AudioBinding;
 
     private statePlayer: boolean = false;
-    private currentVolumn: number = 0;
-    private maxVolumn: number = 1;
-    private stepVolumn: number = 0.01;
-    private minVolumn: number = 0;
 
+    private stateVolumn: StateInput = { current: 0.5, max: 1, step: 0.1, min: 0 }
+    private stateBalance: StateInput = { current: 50, max: 100, step: 1, min: 0 }
+    private stateSpeed: StateInput = { current: 50, max: 100, step: 1, min: 0 }
 
     private audioCtx: AudioContext;
-    private analyserNode: AnalyserNode;
+    private analyserNodeOutput: AnalyserNode;
+    private analyserNodeInput: AnalyserNode;
 
     private firstPlay: boolean = true;
+
+    private stereoPane: StereoPannerNode;
 
     get media(): HTMLMediaElement{
         return this.audioPlayer;
     }
 
-    get analyser(): AnalyserNode {
-        return this.analyserNode;
+    get analyserInput(): AnalyserNode {
+        return this.analyserNodeInput;
+    }
+
+    get analyserOutput(): AnalyserNode {
+        return this.analyserNodeOutput;
     }
 
     connectedCallback() {
-
         super.connectedCallback();
-
         this.binding = new AudioBinding(this.shadowRoot)
-
-        //setting audio player
         this.audioPlayer =  this.shadowRoot.querySelector("#myPlayer");
-        //this.audioPlayer.src = this.sourceAudio;
-
-        //setting audio context
-        this.binding.volumn.min = String(this.minVolumn);
-        this.binding.volumn.max = String(this.maxVolumn);
-        this.binding.volumn.value = String(this.currentVolumn);
-        this.binding.volumn.step = String(this.stepVolumn);
-
+        this.initValueVolumn();
+        this.initValueSliderBalanceSpeed();
         this.initButtonIcon();
         this.listenerAudio();
         this.listenerSlider();
         this.listenerActionAudio();
+    }
 
+    private initValueSliderBalanceSpeed() {
+        this.binding.updateValueBalance(this.stateBalance)
+        this.binding.updateValueSpeed(this.stateSpeed)
+        this.binding.refreshSliderBalance();
+        this.binding.refreshSliderSpeed();
+        this.setSpeed();
+    }
+
+    private initValueVolumn() {
+        this.binding.updateValueVolumn(this.stateVolumn);
+        this.audioPlayer.volume = this.stateVolumn.current;
     }
 
     setURL(detail: string) {
-        //this.audioPlayer.pause();
-        //this.audioPlayer.currentTime = 0;
         this.binding.title.innerText = detail;
         this.audioPlayer.src = detail;
+    }
+
+    volumnAnimationFrame(): void{
+        this.binding.volumnLeft.refreshVolumn();
+        this.binding.volumnRight.refreshVolumn();
+    }
+
+    clearVolumnAnimation() {
+        this.binding.volumnLeft.clear();
+        this.binding.volumnRight.clear();
     }
 
     private initButtonIcon() {
@@ -168,7 +238,6 @@ export class AudioPlayer extends FASTElement {
             this.dispatchEvent(new Event("play"))
         }
         this.audioPlayer.onabort = () => {
-            console.log("abord")
             this.onStopAudio(); 
         }
     }
@@ -179,27 +248,55 @@ export class AudioPlayer extends FASTElement {
             return;
         }
 
+        //AudioContext
         this.audioCtx = new AudioContext({sampleRate: 48000})
         
+        //Set context into booster and equalizer
         this.binding.booster.audioContext = this.audioCtx;
         this.binding.equalizer.audioContext = this.audioCtx;
 
+        //get the first node of graph
         let playerNode = this.audioCtx.createMediaElementSource(this.audioPlayer);
 
-        // Create an analyser node
-        this.analyserNode = this.audioCtx.createAnalyser();
-        this.analyserNode.fftSize = 2048; // Try changing for lower values: 512, 256, 128, 64...
-        const elements: Array<AudioNode> = [... this.binding.booster.filters, ...this.binding.equalizer.filters];
+        //create input and output analyser
+        this.analyserNodeOutput = this.audioCtx.createAnalyser();
+        this.analyserNodeOutput.fftSize = 2048;
+        this.analyserNodeInput = this.audioCtx.createAnalyser();
+        this.analyserNodeInput.fftSize = 2048; 
+
+        //merge filters booster and equalizer
+        const elements: Array<AudioNode> = [
+            ... this.binding.booster.filters, 
+            ...this.binding.equalizer.filters
+        ];
         
-        let currentNode: AudioNode = playerNode;
+        playerNode.connect(this.binding.booster.inputGain)
+        this.binding.booster.inputGain.connect(this.analyserNodeInput);
+
+        let currentNode: AudioNode = this.analyserNodeInput;
 
         for (const value of elements) {
             currentNode.connect(value);
             currentNode = value;
         }
 
-        currentNode.connect(this.analyserNode);
-        this.analyserNode.connect(this.audioCtx.destination);
+        currentNode.connect(this.binding.booster.outputGain);
+        currentNode = this.binding.booster.outputGain;
+
+        this.stereoPane = this.audioCtx.createStereoPanner();
+        currentNode.connect(this.stereoPane);
+        this.stereoPane.connect(this.analyserNodeOutput);
+        this.analyserNodeOutput.connect(this.audioCtx.destination);
+
+        //SPLITTER VOLUMN
+        this.binding.volumnLeft.context = this.audioCtx;
+        this.binding.volumnRight.context = this.audioCtx;
+        const splitter = this.audioCtx.createChannelSplitter();
+        this.stereoPane.connect(splitter);
+        splitter.connect(this.binding.volumnLeft.analyser,0,0);
+        splitter.connect(this.binding.volumnRight.analyser,1,0);
+
+        this.setBalance();
 
         this.firstPlay = false;
     }
@@ -210,6 +307,37 @@ export class AudioPlayer extends FASTElement {
             this.binding.updateCurrentTime(value);
             this.audioPlayer.currentTime = value;
         }
+
+        this.binding.sliderBalance.oninput = () => {
+            this.binding.refreshSliderBalance();
+            this.setBalance();
+        }
+
+        this.binding.sliderSpeed.oninput = () => {
+            this.binding.refreshSliderSpeed();
+            this.setSpeed();
+        }
+    }
+
+    private setBalance(){
+        if(this.stereoPane === undefined) return;
+        this.stereoPane.pan.value = Utils.mapRange(
+            Number(this.binding.sliderBalance.value), 
+            Number(this.binding.sliderBalance.min),
+            Number(this.binding.sliderBalance.max),
+            -1,
+            1
+        );
+    }
+
+    private setSpeed(){
+        this.audioPlayer.playbackRate = Utils.mapRange(
+            Number(this.binding.sliderSpeed.value), 
+            Number(this.binding.sliderSpeed.min),
+            Number(this.binding.sliderSpeed.max),
+            0,
+            2
+        );
     }
 
     private listenerActionAudio(): void{

@@ -1,40 +1,79 @@
 <div id="audio-container">
-    <div class="animated">
-        <span id="title-audio-player">No title</span>
-    </div>
-    <audio id="myPlayer" crossorigin="anonymous" preload=”metadata”></audio>
-    <div id="audioPlayer">
-        <div>
-            <button id="reduce10"></button>
-        </div>
-        <div class="ml">
-            <button id="play"></button>
-        </div>
-        <div class="ml">
-            <button id="avance10"></button>
-        </div>
-        <div class="ml"> 
-            <span id="currentTime" class="time">0:00</span>
-        </div>
-        <div id="audio-player-container" class="ml">
-            <input type="range" id="progress-slider" value="0">
-        </div>
-        <div class="ml">
-            <span id="duration" class="time">0:00</span>
-        </div>
-        <div class="ml">
-            <webaudio-knob id="volumeKnob"
-                src="/assets/imgs/LittlePhatty.png"
-                diameter="30"
-                tooltip="Volume: %d"
-            ></webaudio-knob>
-        </div>
-    </div>
+  <div class="animated">
+    <span id="title-audio-player">No title</span>
+  </div>
+  <audio id="myPlayer" crossorigin="anonymous" preload="”metadata”"></audio>
+  <div id="audioPlayer">
     <div>
-       
+      <button id="reduce10"></button>
     </div>
-    <audio-booster id="audio-booster"></audio-booster>
-    <audio-equalizer id="audio-equalizer"></audio-equalizer>
+    <div class="ml">
+      <button id="play"></button>
+    </div>
+    <div class="ml">
+      <button id="avance10"></button>
+    </div>
+    <div class="ml">
+      <span id="currentTime" class="time">0:00</span>
+    </div>
+    <div id="audio-player-container" class="ml audio-slider-container">
+      <input
+        type="range"
+        id="progress-slider"
+        class="slider-progress"
+        value="0"
+      />
+    </div>
+    <div class="ml">
+      <span id="duration" class="time">0:00</span>
+    </div>
+    <div class="ml">
+      <webaudio-knob
+        id="volumeKnob"
+        src="/assets/imgs/LittlePhatty.png"
+        diameter="30"
+        tooltip="Volume: %d"
+        value="0.5"
+      ></webaudio-knob>
+    </div>
+  </div>
+
+  <div id="audio-plugin-container">
+    <div id="audio-plugin-volumn-container">
+      <audio-volumn-vis id="audio-volumn-left"></audio-volumn-vis>
+      <audio-volumn-vis id="audio-volumn-right"></audio-volumn-vis>
+    </div>
+    <div id="audio-plugin-other-container">
+      <div id="audio-slider-container">
+        <div>
+          <div><span>Balance</span></div>
+          <div id="audio-slider-balance" class="audio-slider-container">
+            <input
+              type="range"
+              id="balance-slider"
+              class="slider-progress"
+              value="50"
+              min="0"
+              max="100"
+            />
+          </div>
+        </div>
+        <div>
+          <div><span>Speed</span></div>
+          <div id="audio-slider-speed" class="audio-slider-container">
+            <input
+              type="range"
+              id="speed-slider"
+              class="slider-progress"
+              value="50"
+              min="0"
+              max="100"
+            />
+          </div>
+        </div>
+      </div>
+      <audio-booster id="audio-booster"></audio-booster>
+      <audio-equalizer id="audio-equalizer"></audio-equalizer>
+    </div>
+  </div>
 </div>
-
-

@@ -2,13 +2,33 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>FAST Webpack</title>
+    <title>AudioWebComponent</title>
     <script src="/bundle.js"></script>
     <style>
-      
+      body{
+        margin: 0;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-image: url("/assets/imgs/background4.jpg");
+        background-size: contain;
+      }
+      #app-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 200;
+      }
     </style>
   </head>
-  <body>
-    <main-app sourceAudio="https://mainline.i3s.unice.fr/mooc/LaSueur.mp3"></main-app>
+  <body> 
+    <div id="main-app-container">
+      <div id="app-container">
+        <main-app sourceAudio="https://mainline.i3s.unice.fr/mooc/LaSueur.mp3"></main-app>
+      </div>
+    </div>
   </body>
 </html>

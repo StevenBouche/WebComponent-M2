@@ -1,0 +1,14 @@
+#volume-wrapper {
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+    margin-top: .5em;
+    justify-content: center;
+    align-items: center;
+}
+
+.led {
+    height: 18px;
+    width: 18px;
+    margin-top: 0.3em;
+}
