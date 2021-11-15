@@ -14,14 +14,12 @@ const template = html<Equalizer> `${htmlFile}`;
 const styles = css`${cssFile}`;
 
 class EqualizerBinding {
-
-    eq60: HTMLElement;
-    eq170: HTMLElement;
-    eq350: HTMLElement;
-    eq1000: HTMLElement;
-    eq3500: HTMLElement;
-    eq10k: HTMLElement;
-
+    eq60: HTMLInputElement;
+    eq170: HTMLInputElement;
+    eq350: HTMLInputElement;
+    eq1000: HTMLInputElement;
+    eq3500: HTMLInputElement;
+    eq10k: HTMLInputElement;
     constructor(shadowRoot: ShadowRoot){
         this.eq60 = shadowRoot.querySelector('#eq-60')
         this.eq170 = shadowRoot.querySelector('#eq-170')
@@ -59,39 +57,38 @@ export class Equalizer extends FASTElement {
     }
 
     buildFilters() {
-        this.mapFilter.set(NameFilter.EQ60, new AudioFilter(this._audioContext, 60, 'peaking'));
-        this.mapFilter.set(NameFilter.EQ170, new AudioFilter(this._audioContext, 170, 'peaking'));
-        this.mapFilter.set(NameFilter.EQ350, new AudioFilter(this._audioContext, 350, 'peaking'));
-        this.mapFilter.set(NameFilter.EQ1000, new AudioFilter(this._audioContext, 1000, 'peaking'));
-        this.mapFilter.set(NameFilter.EQ3500, new AudioFilter(this._audioContext, 3500, 'peaking'));
-        this.mapFilter.set(NameFilter.EQ10K, new AudioFilter(this._audioContext, 10000, 'peaking'));
+        this.mapFilter.set(NameFilter.EQ60, new AudioFilter(this._audioContext, 60, 'peaking', Number(this.equalizer.eq60.value)));
+        this.mapFilter.set(NameFilter.EQ170, new AudioFilter(this._audioContext, 170, 'peaking', Number(this.equalizer.eq170.value)));
+        this.mapFilter.set(NameFilter.EQ350, new AudioFilter(this._audioContext, 350, 'peaking', Number(this.equalizer.eq350.value)));
+        this.mapFilter.set(NameFilter.EQ1000, new AudioFilter(this._audioContext, 1000, 'peaking', Number(this.equalizer.eq1000.value)));
+        this.mapFilter.set(NameFilter.EQ3500, new AudioFilter(this._audioContext, 3500, 'peaking', Number(this.equalizer.eq3500.value)));
+        this.mapFilter.set(NameFilter.EQ10K, new AudioFilter(this._audioContext, 10000, 'peaking', Number(this.equalizer.eq10k.value)));
     }
 
     listenerActionEqualizer() {
         this.equalizer.eq60.oninput = (event) => {
             const value = Utils.getValueInput(event.target);
-            this.mapFilter.get(NameFilter.EQ60).setGain(value);
+            this.mapFilter.get(NameFilter.EQ60)?.setGain(value);
         }
         this.equalizer.eq170.oninput = (event) => {
             const value = Utils.getValueInput(event.target);
-            this.mapFilter.get(NameFilter.EQ170).setGain(value);
+            this.mapFilter.get(NameFilter.EQ170)?.setGain(value);
         }
         this.equalizer.eq350.oninput = (event) => {
             const value = Utils.getValueInput(event.target);
-            this.mapFilter.get(NameFilter.EQ350).setGain(value);
+            this.mapFilter.get(NameFilter.EQ350)?.setGain(value);
         }
         this.equalizer.eq1000.oninput = (event) => {
             const value = Utils.getValueInput(event.target);
-            this.mapFilter.get(NameFilter.EQ1000).setGain(value);
+            this.mapFilter.get(NameFilter.EQ1000)?.setGain(value);
         }
         this.equalizer.eq3500.oninput = (event) => {
             const value = Utils.getValueInput(event.target);
-            this.mapFilter.get(NameFilter.EQ3500).setGain(value);
+            this.mapFilter.get(NameFilter.EQ3500)?.setGain(value);
         }
         this.equalizer.eq10k.oninput = (event) => {
             const value = Utils.getValueInput(event.target);
-            this.mapFilter.get(NameFilter.EQ10K).setGain(value);
+            this.mapFilter.get(NameFilter.EQ10K)?.setGain(value);
         }
     }
-
 }

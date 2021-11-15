@@ -13,17 +13,14 @@ const template = html<Booster> `${htmlFile}`;
 const styles = css`${cssFile}`;
 
 class BoosterBinding {
-
-    input: HTMLElement;
-    output: HTMLElement;
-    drive: HTMLElement;
-    bass: HTMLElement;
-    middle: HTMLElement;
-    treble: HTMLElement;
-    reverb: HTMLElement;
-    presence: HTMLElement;
-
-
+    input: HTMLInputElement;
+    output: HTMLInputElement;
+    drive: HTMLInputElement;
+    bass: HTMLInputElement;
+    middle: HTMLInputElement;
+    treble: HTMLInputElement;
+    reverb: HTMLInputElement;
+    presence: HTMLInputElement;
     constructor(shadowRoot: ShadowRoot){
         this.input = shadowRoot.querySelector('#input-booster')
         this.output = shadowRoot.querySelector('#output-booster')
@@ -42,11 +39,6 @@ class BoosterBinding {
 })
 export class Booster extends FASTElement {
 
-    
-    private minBooster = 0;
-    private stepBooster = 0.1;
-    private maxBooster = 10;
-    
     private booster: BoosterBinding;
     private mapFilter: Map<NameFilter, AudioFilter> = new Map();
     private _audioContext: AudioContext;
@@ -62,45 +54,49 @@ export class Booster extends FASTElement {
         this.buildFilters();
     }
 
-    connectedCallback() {
+    connectedCallback(): void {
         super.connectedCallback();
-        this.booster = new BoosterBinding(this.shadowRoot)
+        this.booster = new BoosterBinding(this.shadowRoot);
         this.listenerActionBooster();
     }
 
-    buildFilters() {
+    buildFilters(): void {
         this.inputGain = this._audioContext.createGain();
+        this.inputGain.gain.value = Number(this.booster.input.value);
         this.outputGain = this._audioContext.createGain();
-        this.mapFilter.set(NameFilter.BASS, new AudioFilter(this._audioContext, 100, 'lowshelf', value => value * 3));
-        this.mapFilter.set(NameFilter.MIDDLE, new AudioFilter(this._audioContext, 1700, 'peaking', value => value-5 * 2));
-        this.mapFilter.set(NameFilter.TREBLE, new AudioFilter(this._audioContext, 6500, 'highshelf', value => value * 5));
-        this.mapFilter.set(NameFilter.PRESENCE, new AudioFilter(this._audioContext, 3900, 'peaking', value => value * 2));
+        this.outputGain.gain.value = Number(this.booster.output.value);
+        this.mapFilter.set(NameFilter.BASS, new AudioFilter(this._audioContext, 100, 'lowshelf', Number(this.booster.bass.value), value => value * 3));
+        this.mapFilter.set(NameFilter.MIDDLE, new AudioFilter(this._audioContext, 1700, 'peaking', Number(this.booster.middle.value),value => value-5 * 2));
+        this.mapFilter.set(NameFilter.TREBLE, new AudioFilter(this._audioContext, 6500, 'highshelf', Number(this.booster.treble.value),value => value * 5));
+        this.mapFilter.set(NameFilter.PRESENCE, new AudioFilter(this._audioContext, 3900, 'peaking', Number(this.booster.presence.value),value => value * 2));
     }
 
-    listenerActionBooster() {
+    listenerActionBooster(): void {
         this.booster.input.oninput = (event) => {
             const value = Utils.getValueInput(event.target);
-            this.inputGain.gain.value = value / 10;
+            if(this.inputGain !== undefined)
+                this.inputGain.gain.value = value / 10;
         }
         this.booster.output.oninput = (event) => {
             const value = Utils.getValueInput(event.target);
-            this.outputGain.gain.value = value / 10;
+            if(this.outputGain !== undefined)
+                this.outputGain.gain.value = value / 10;
         }
         this.booster.bass.oninput = (event) => {
             const value = Utils.getValueInput(event.target);
-            this.mapFilter.get(NameFilter.BASS).setGain(value);
+            this.mapFilter.get(NameFilter.BASS)?.setGain(value);
         }
         this.booster.middle.oninput = (event) => {
             const value = Utils.getValueInput(event.target);
-            this.mapFilter.get(NameFilter.MIDDLE).setGain(value);
+            this.mapFilter.get(NameFilter.MIDDLE)?.setGain(value);
         }
         this.booster.treble.oninput = (event) => {
             const value = Utils.getValueInput(event.target);
-            this.mapFilter.get(NameFilter.TREBLE).setGain(value);
+            this.mapFilter.get(NameFilter.TREBLE)?.setGain(value);
         }
         this.booster.presence.oninput = (event) => {
             const value = Utils.getValueInput(event.target);
-            this.mapFilter.get(NameFilter.PRESENCE).setGain(value);
+            this.mapFilter.get(NameFilter.PRESENCE)?.setGain(value);
         }
     }
     

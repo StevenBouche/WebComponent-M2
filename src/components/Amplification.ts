@@ -16,22 +16,15 @@ export enum NameFilter {
 
 export class AudioFilter{
     filter: BiquadFilterNode;
-    private calculValue: CalculFilterValue;
-    constructor(context: AudioContext, frequency: number, type: BiquadFilterType, set: CalculFilterValue = null){
+    private calculValue: CalculFilterValue; 
+    constructor(context: AudioContext, frequency: number, type: BiquadFilterType, currentValue: number = 0, set: CalculFilterValue = null){
         this.filter = context.createBiquadFilter();
         this.filter.frequency.value = frequency;
         this.filter.type = type;
         this.calculValue = set;
+        this.setGain(currentValue);
     }
     setGain(value: number){
         this.filter.gain.value = this.calculValue !== null ? this.calculValue(value) : value;
     }
-}
-
-export class Amplification {
-
-
-
-
-
 }

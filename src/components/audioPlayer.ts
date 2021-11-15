@@ -87,6 +87,7 @@ class AudioBinding {
     updateCurrentTime(current: number) {
         this.currentTime.textContent = this.calculateTime(current);
         this.slider.value = `${Math.floor(current)}`;
+        this.audioProgressContainer.style.setProperty('--current-width', `${(current / Number(this.slider.max)) * 100}%`);
     }
 
     calculateTime(secs: number): string {
@@ -135,21 +136,26 @@ export class AudioPlayer extends FASTElement {
    
     private audioPlayer: HTMLAudioElement;
 
+    /**
+     * Contain all references DOM shadowroot
+     */
     private binding: AudioBinding;
 
-    private statePlayer: boolean = false;
-
-    private stateVolumn: StateInput = { current: 0.5, max: 1, step: 0.1, min: 0 }
+    private stateVolumn: StateInput = { current: 50, max: 100, step: 1, min: 0 }
     private stateBalance: StateInput = { current: 50, max: 100, step: 1, min: 0 }
     private stateSpeed: StateInput = { current: 50, max: 100, step: 1, min: 0 }
 
+    /**
+     * All nodes for use it
+     */
     private audioCtx: AudioContext;
     private analyserNodeOutput: AnalyserNode;
     private analyserNodeInput: AnalyserNode;
+    private stereoPane: StereoPannerNode;
 
     private firstPlay: boolean = true;
-
-    private stereoPane: StereoPannerNode;
+    private statePlayer: boolean = false;
+    
 
     get media(): HTMLMediaElement{
         return this.audioPlayer;
@@ -175,19 +181,6 @@ export class AudioPlayer extends FASTElement {
         this.listenerActionAudio();
     }
 
-    private initValueSliderBalanceSpeed() {
-        this.binding.updateValueBalance(this.stateBalance)
-        this.binding.updateValueSpeed(this.stateSpeed)
-        this.binding.refreshSliderBalance();
-        this.binding.refreshSliderSpeed();
-        this.setSpeed();
-    }
-
-    private initValueVolumn() {
-        this.binding.updateValueVolumn(this.stateVolumn);
-        this.audioPlayer.volume = this.stateVolumn.current;
-    }
-
     setURL(detail: string) {
         this.binding.title.innerText = detail;
         this.audioPlayer.src = detail;
@@ -203,43 +196,32 @@ export class AudioPlayer extends FASTElement {
         this.binding.volumnRight.clear();
     }
 
+    private initValueSliderBalanceSpeed() {
+        this.binding.updateValueBalance(this.stateBalance)
+        this.binding.updateValueSpeed(this.stateSpeed)
+        this.binding.refreshSliderBalance();
+        this.binding.refreshSliderSpeed();
+        this.setSpeed();
+    }
+    
+    private initValueVolumn() {
+        this.audioPlayer.volume = Utils.mapRange(this.stateVolumn.current,0,100,0,1);
+    }
+
     private initButtonIcon() {
-        console.log(SvgCollection.play)
         this.binding.play.innerHTML = this.statePlayer ? SvgCollection.pause : SvgCollection.play;
         this.binding.back.innerHTML = SvgCollection.back;
         this.binding.forward.innerHTML = SvgCollection.forward;
     }
 
     private listenerAudio(): void {
-
-        this.audioPlayer.onloadedmetadata = () => {
-            let duration = this.audioPlayer.duration
-            this.binding.updateAudioDuration(duration)
-        }
-        this.audioPlayer.ontimeupdate = () => {
-            this.binding.updateCurrentTime(this.audioPlayer.currentTime);
-            this.binding.audioProgressContainer.style.setProperty('--current-width', `${(this.audioPlayer.currentTime / Number(this.binding.slider.max)) * 100}%`);
-        }
-        this.audioPlayer.onpause = () => { 
-            this.onStopAudio(); 
-            this.dispatchEvent(new Event("pause"));
-        }
-        this.audioPlayer.onprogress = () => { 
-            this.displayBufferedAmount(); 
-        }
-        this.audioPlayer.onended = () => { 
-            this.onStopAudio(); 
-            this.dispatchEvent(new Event("ended"));
-        }
-        this.audioPlayer.onplay = () => {
-            this.buildAudioGraph();
-            this.displayBufferedAmount();
-            this.onPlayAudio();
-            this.dispatchEvent(new Event("play"))
-        }
-        this.audioPlayer.onabort = () => {
-            this.onStopAudio(); 
-        }
+        this.audioPlayer.onloadedmetadata = () => this.binding.updateAudioDuration(this.audioPlayer.duration);
+        this.audioPlayer.ontimeupdate = () => this.binding.updateCurrentTime(this.audioPlayer.currentTime);
+        this.audioPlayer.onpause = () => this.onStopAudio('pause'); 
+        this.audioPlayer.onprogress = () => this.displayBufferedAmount(); 
+        this.audioPlayer.onended = () => this.onStopAudio('ended'); 
+        this.audioPlayer.onabort = () => this.onStopAudio('abort'); 
+        this.audioPlayer.onplay = () => this.onPlayAudio('play');
     }
 
     private buildAudioGraph() {
@@ -286,7 +268,8 @@ export class AudioPlayer extends FASTElement {
         this.stereoPane = this.audioCtx.createStereoPanner();
         currentNode.connect(this.stereoPane);
         this.stereoPane.connect(this.analyserNodeOutput);
-        this.analyserNodeOutput.connect(this.audioCtx.destination);
+        this.stereoPane.connect(this.audioCtx.destination)
+       // this.analyserNodeOutput.connect(this.audioCtx.destination);
 
         //SPLITTER VOLUMN
         this.binding.volumnLeft.context = this.audioCtx;
@@ -307,12 +290,10 @@ export class AudioPlayer extends FASTElement {
             this.binding.updateCurrentTime(value);
             this.audioPlayer.currentTime = value;
         }
-
         this.binding.sliderBalance.oninput = () => {
             this.binding.refreshSliderBalance();
             this.setBalance();
         }
-
         this.binding.sliderSpeed.oninput = () => {
             this.binding.refreshSliderSpeed();
             this.setSpeed();
@@ -354,14 +335,18 @@ export class AudioPlayer extends FASTElement {
         }  
     }
 
-    private onPlayAudio() {
+    private onPlayAudio(eventNameSource: string) {
+        this.buildAudioGraph();
+        this.displayBufferedAmount();
         this.statePlayer = true;
         this.updateImagePlay();
+        this.dispatchEvent(new Event(eventNameSource));
     }
 
-    private onStopAudio() {
+    private onStopAudio(eventNameSource: string) {
         this.statePlayer = false;
         this.updateImagePlay();
+        this.dispatchEvent(new Event(eventNameSource));
     }
 
     private play(){
@@ -374,17 +359,12 @@ export class AudioPlayer extends FASTElement {
     }
 
     private modifyTime(value: number){
-        let newValue = this.audioPlayer.currentTime + value;
+        const newValue = this.audioPlayer.currentTime + value;
         this.audioPlayer.currentTime = newValue < 0 ? 0 : newValue;
     }
 
     private modifyVolumn(target: EventTarget) {
-        this.audioPlayer.volume = this.getValueInput(target);
-    }
-
-    private speed(target: EventTarget){
-        console.log("speed")
-        this.audioPlayer.playbackRate = parseFloat((<HTMLInputElement>target).value);
+        this.audioPlayer.volume = Utils.mapRange( this.getValueInput(target),0,100,0,1);
     }
 
     private getValueInput(target: EventTarget): number{
