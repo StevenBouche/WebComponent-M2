@@ -156,7 +156,6 @@ export class Main extends FASTElement {
             this.playlist.addElement('https://file-examples-com.github.io/uploads/2017/11/file_example_MP3_5MG.mp3');
             this.playlist.addElement('https://mainline.i3s.unice.fr/mooc/guitarRiff1.mp3');
         }
-
     }
 
     requestFrame(): number {
