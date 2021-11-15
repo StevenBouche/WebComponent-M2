@@ -10,7 +10,9 @@ Ce projet met en oeuvre l'écriture de web composants.
     - npm run build
     - npm run start
 
-## Lien de l'application en production : https://webcomponentaudio.herokuapp.com/
+## Lien de l'application en production
+
+https://webcomponentaudio.herokuapp.com/
 
 ## Fonctionnalités 
 
@@ -42,6 +44,13 @@ Ce projet met en oeuvre l'écriture de web composants.
 
 - Bouton de rajout d'URL audio à la playlist 
 - Permet la sélection d'une URL dans la playlist et le set dans l'audio player
+
+### Visualisation de l'audio
+
+- 3 canvas, en bar, en cercle, et en wave
+- Un groupe pour la visualisation du son en entrée avant booster et eq et un groupe pour l'audio en output
+
+
 
 
 
